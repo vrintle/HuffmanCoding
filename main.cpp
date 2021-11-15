@@ -19,8 +19,6 @@ Node* top; // it's the top of HuffmanTree
 vector<bool> encoding; // it's our whole EncodedData
 map<Node*, vector<bool>> path; // stores path till current node
 map<char, vector<bool>> char_path; // stores code for leaves
-ifstream fin;
-ofstream fout;
 
 class CMP {
 public:
@@ -47,7 +45,7 @@ void build_huffman_tree(string& s) {
   // b->debug();
 
   Node* head = new Node (
-   a->F + b->F, '*', a, b // a.F < b.F, so a is left one, and b right one
+   a->F + b->F, '\0', a, b // a.F < b.F, so a is left one, and b right one
   );
   q.push(head);
  }
@@ -59,7 +57,7 @@ void build_huffman_tree(string& s) {
 void dfs(Node* n) {
  n->debug();
 
- if(n->C == '*') {
+ if(n->C == '\0') {
   path[n->L] = path[n];
   path[n->R] = path[n];
   path[n->L].push_back(0);
@@ -72,25 +70,42 @@ void dfs(Node* n) {
  }
 }
 
+void compress() {
+ vector<bool> copy = encoding;
+ reverse(copy.begin(), copy.end());
+ copy.push_back(1);
+ int rem = 8 - (copy.size() % 8);
+ while(rem--) copy.push_back(0);
+ reverse(copy.begin(), copy.end());
+ 
+ for(int i = 0; i < copy.size(); i += 8) {
+  int k = 0;
+  for(int j = i; j-i < 8; j++) {
+   if(copy[j]) k += 1<<(j-i);
+  }
+  char c = k;
+  cout << c;
+ }
+}
+
 void encode(string& s) {
  cerr << '\n';
  dfs(top);
  cerr << "\nThe encoded user data is: ";
  for(auto& e: s) {
   for(bool b: char_path[e]) {
-   // fout << b;
    cerr << b;
    encoding.push_back(b);
   }
  }
 
- fout.write((char*) &encoding, sizeof encoding);
+ compress();
 }
 
 void decode() {
  Node* curr = top;
  for(auto e: encoding) {
-  if(curr->C != '*') {
+  if(curr->C != '\0') {
    cerr << curr->C;
    curr = top;
   }
@@ -100,27 +115,16 @@ void decode() {
 }
 
 int main() {
- fin.open("source.txt");
- fout.open("encoded.bin", ios::binary);
+ freopen("source.txt", "r", stdin);
+ freopen("encoded.txt", "w", stdout);
  freopen("logs.txt", "w", stderr);
- string s;
- getline(fin, s, '\n');
 
- cerr << "The data recieved from user is: " << s << '\n'; 
+ string s;
+ getline(cin, s, '\n');
  build_huffman_tree(s);
  encode(s);
- fin.close();
- fout.close();
- cerr << "\nThe original user data decoded from encoding is: ";
+ cerr << "\n\nThe original user data decoded from encoding is: ";
  decode();
 
- ifstream debug;
- debug.open("encoded.bin", ios::binary);
- vector<bool> buffer(istreambuf_iterator<char>(debug), {});
- for(auto e: buffer) {
-  cerr << e;
- }
-
- debug.close();
  return 0;
 }
