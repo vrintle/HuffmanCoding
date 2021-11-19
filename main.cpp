@@ -90,7 +90,7 @@ void compress() {
   cout << ((char) c);
  }
 }
-
+//for depth first traversal to get the code for each cahracter
 void encode(string& s) {
  cerr << '\n';
  dfs(top);
