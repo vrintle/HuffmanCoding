@@ -74,22 +74,7 @@ void dfs(Node* n) {
 // c -> 21 = 10101
 // 100101 = 00100101
 
-void compress() {
- vector<bool> copy = encoding;
- reverse(copy.begin(), copy.end());
- copy.push_back(1);
- int rem = 8 - (copy.size() % 8);
- while(rem--) copy.push_back(0);
- reverse(copy.begin(), copy.end());
- 
- for(int i = 0; i < copy.size(); i += 8) {
-  int c = 0;
-  for(int j = i; j-i < 8; j++) {
-   if(copy[j]) c += 1 << (j-i);
-  }
-  cout << ((char) c);
- }
-}
+
 //for depth first traversal to get the code for each cahracter
 void encode(string& s) {
  cerr << '\n';
